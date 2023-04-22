@@ -4,13 +4,17 @@
 #include "glfw/deps/glad/gl.h"
 
 int main() {
-    int height{800};
-    int width{800};
+    int height{1200};
+    int width{1600};
+
     InitWindow(height, width, "Circle");
 
-    int circle_x = 400;
-    int circle_y = 400;
+    int circle_x = height / 2;
+    int circle_y = width / 2;
     int circle_radius = 50;
+    int circle_min_radius = circle_radius;
+    int circle_max_radius = height < width ? height / 2 : width / 2;
+    int circle_radius_step = 50;
     Color circle_color = {0, 255, 0, 255};
 
     SetTargetFPS(30);
@@ -34,12 +38,12 @@ int main() {
                 circle_y += circle_radius;
             }
 
-            if (circle_x + circle_radius > 800) {
-                circle_x = width - circle_radius;
+            if (circle_x + circle_radius > height) {
+                circle_x = height - circle_radius;
             }
 
-            if (circle_y + circle_radius > 800) {
-                circle_y = height - circle_radius;
+            if (circle_y + circle_radius > width) {
+                circle_y = width - circle_radius;
             }
 
             if (circle_x - circle_radius < 0) {
@@ -51,19 +55,19 @@ int main() {
             }
 
             if (IsKeyDown(KEY_PAGE_UP)) {
-                circle_radius += 50;
+                circle_radius += circle_radius_step;
             }
 
             if (IsKeyDown(KEY_PAGE_DOWN)) {
-                circle_radius -= 50;
+                circle_radius -= circle_radius_step;
             }
 
-            if (circle_radius > 400) {
-                circle_radius = 400;
+            if (circle_radius > circle_max_radius) {
+                circle_radius = circle_max_radius;
             }
 
-            if (circle_radius <= 0) {
-                circle_radius = 50;
+            if (circle_radius <= circle_min_radius) {
+                circle_radius = circle_min_radius;
             }
 
             if (IsKeyDown(KEY_SPACE)) {
