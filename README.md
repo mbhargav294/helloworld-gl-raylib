@@ -4,4 +4,4 @@ Using the simple `DrawCircle` method from `raylib` to create and play with a cir
 
 ## Here is a quick preview
 
-![Circle Physics Preview](./circle_physics.gif)
+![Circle Physics Preview](./circle_game.gif)

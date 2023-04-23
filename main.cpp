@@ -1,56 +1,91 @@
 #include <cstdio>
 #include <string>
+#include <time.h>
+#include <stdlib.h>
 
 #include "raylib.h"
 
 int main() {
-    int height{1200};
     int width{1600};
+    int height{1600};
 
-    InitWindow(height, width, "Circle");
+    InitWindow(width, height, "Circle");
 
-    int circle_x = height / 2;
-    int circle_y = width / 2;
-    int circle_radius = 50;
+    int circle_x = width / 2;
+    int circle_y = height / 2;
+    int circle_radius = 10;
     int circle_min_radius = circle_radius;
     int circle_max_radius = height < width ? height / 2 : width / 2;
-    int circle_radius_step = 50;
-    Color circle_color = {0, 255, 0, 255};
+    int circle_radius_step = 5;
+    int max_circle_radius = 200;
+
+    srand(time(NULL));
+
+    int rectangle_x = rand() % (width - 100) + 100;
+    int rectangle_y = rand() % (width - 100) + 100;
+    float rectangle_width = 25;
+    float rectangle_height = 25;
+    float rectangle_rotation = 0;
+
     std::string prompt = "Key Pressed: ";
     std::string key = "None";
+    std::string score_text = "Score: ";
+    int score = 0;
+    int score_increment = 10;
 
     SetTargetFPS(30);
     while (!WindowShouldClose()) {
         BeginDrawing();
-            ClearBackground(RAYWHITE);
+            int l_circle_x{circle_x - circle_radius};
+            int r_circle_x{circle_x + circle_radius};
+            int u_circle_y{circle_y - circle_radius};
+            int b_circle_y{circle_y + circle_radius};
+
+            int l_rectangle_x{rectangle_x};
+            int r_rectangle_x{rectangle_x + (int)rectangle_width};
+            int u_rectangle_y{rectangle_y};
+            int b_rectangle_y{rectangle_y + (int)rectangle_height};
+
+            ClearBackground(BLACK);
+            bool collision_detected = b_rectangle_y >= u_circle_y &&
+                                      u_rectangle_y <= b_circle_y &&
+                                      l_rectangle_x <= r_circle_x &&
+                                      r_rectangle_x >= l_circle_x;
+            if (collision_detected) {
+                score += score_increment;
+                rectangle_x = rand() % (width - 100) + 100;
+                rectangle_y = rand() % (width - 100) + 100;
+                circle_radius += circle_radius_step;
+                circle_radius = circle_radius > max_circle_radius ? max_circle_radius : circle_radius;
+            }
             key = "None";
 
             if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) {
-                circle_x += circle_radius;
-                key = "Right";
+                circle_x += 10 + (circle_radius * 0.3);
+                key = IsKeyDown(KEY_RIGHT) ? "Right" : "D";
             }
 
             if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) {
-                circle_x -= circle_radius;
-                key = "Left";
+                circle_x -= 10 + (circle_radius * 0.3);;
+                key = IsKeyDown(KEY_LEFT) ? "Left" : "A";
             }
 
             if (IsKeyDown(KEY_UP) || IsKeyDown(KEY_W)) {
-                circle_y -= circle_radius;
-                key = "Up";
+                circle_y -= 10 + (circle_radius * 0.3);;
+                key = IsKeyDown(KEY_UP) ? "Up" : "W";
             }
 
             if (IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_S)) {
-                circle_y += circle_radius;
-                key = "Down";
+                circle_y += 10 + (circle_radius * 0.3);;
+                key = IsKeyDown(KEY_DOWN) ? "Down" : "S";
             }
 
-            if (circle_x + circle_radius > height) {
-                circle_x = height - circle_radius;
+            if (circle_x + circle_radius > width) {
+                circle_x = width - circle_radius;
             }
 
-            if (circle_y + circle_radius > width) {
-                circle_y = width - circle_radius;
+            if (circle_y + circle_radius > height) {
+                circle_y = height - circle_radius;
             }
 
             if (circle_x - circle_radius < 0) {
@@ -61,16 +96,6 @@ int main() {
                 circle_y = circle_radius;
             }
 
-            if (IsKeyDown(KEY_PAGE_UP)) {
-                circle_radius += circle_radius_step;
-                key = "PgUp";
-            }
-
-            if (IsKeyDown(KEY_PAGE_DOWN)) {
-                circle_radius -= circle_radius_step;
-                key = "PgDown";
-            }
-
             if (circle_radius > circle_max_radius) {
                 circle_radius = circle_max_radius;
             }
@@ -79,17 +104,22 @@ int main() {
                 circle_radius = circle_min_radius;
             }
 
-            if (IsKeyDown(KEY_SPACE)) {
-                circle_color.r = (circle_color.r + 10) % 255;
-                circle_color.g = (circle_color.g + 20) % 255;
-                circle_color.b = (circle_color.b + 30) % 255;
-                key = "Space";
-            }
-
-            DrawCircle(circle_x, circle_y, circle_radius, circle_color);
+            DrawCircle(circle_x, circle_y, circle_radius, BLUE);
+            Rectangle r = {
+                (float) rectangle_x,
+                (float) rectangle_y,
+                rectangle_width,
+                rectangle_height
+            };
+            rectangle_rotation = (int)(rectangle_rotation + 10) % 360;
+            DrawRectanglePro(r, {rectangle_width/2, rectangle_height/2}, rectangle_rotation, GREEN);
 
             std::string debug_statement = prompt + key;
-            DrawText(debug_statement.c_str(), height / 10, width / 10, 48, RED);
+            DrawText(debug_statement.c_str(), 100, height - 100, 48, RED);
+
+            std::string score_ui_text = score_text + std::to_string(score);
+            DrawText(score_ui_text.c_str(), width/2 - 100, height / 10, 48, YELLOW);
+            DrawFPS(width - 100, 0);
         EndDrawing();
     }
 
